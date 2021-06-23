@@ -11,7 +11,7 @@ class IntlPhoneField extends StatefulWidget {
   final bool obscureText;
   final TextAlign textAlign;
   final VoidCallback? onTap;
-  
+
   /// {@macro flutter.widgets.editableText.readOnly}
   final bool readOnly;
   final FormFieldSetter<PhoneNumber>? onSaved;
@@ -126,6 +126,7 @@ class IntlPhoneField extends StatefulWidget {
   /// If null, defaults to the `subtitle1` text style from the current [Theme].
   final TextStyle? style;
   final bool showDropdownIcon;
+  final bool showFlag;
 
   final BoxDecoration dropdownDecoration;
 
@@ -146,35 +147,37 @@ class IntlPhoneField extends StatefulWidget {
 
   TextInputAction? textInputAction;
 
-  IntlPhoneField(
-      {this.initialCountryCode,
-      this.obscureText = false,
-      this.textAlign = TextAlign.left,
-      this.onTap,
-      this.readOnly = false,
-      this.initialValue,
-      this.keyboardType = TextInputType.number,
-      this.autoValidate = true,
-      this.controller,
-      this.focusNode,
-      this.decoration,
-      this.style,
-      this.onSubmitted,
-      this.validator,
-      this.onChanged,
-      this.countries,
-      this.onCountryChanged,
-      this.onSaved,
-      this.showDropdownIcon = true,
-      this.dropdownDecoration = const BoxDecoration(),
-      this.inputFormatters,
-      this.enabled = true,
-      this.keyboardAppearance = Brightness.light,
-      this.searchText = 'Search by Country Name',
-      this.countryCodeTextColor,
-      this.dropDownArrowColor,
-      this.autofocus = false,
-      this.textInputAction});
+  IntlPhoneField({
+    this.initialCountryCode,
+    this.obscureText = false,
+    this.textAlign = TextAlign.left,
+    this.onTap,
+    this.readOnly = false,
+    this.initialValue,
+    this.keyboardType = TextInputType.number,
+    this.autoValidate = true,
+    this.controller,
+    this.focusNode,
+    this.decoration,
+    this.style,
+    this.onSubmitted,
+    this.validator,
+    this.onChanged,
+    this.countries,
+    this.onCountryChanged,
+    this.onSaved,
+    this.showDropdownIcon = true,
+    this.showFlag = true,
+    this.dropdownDecoration = const BoxDecoration(),
+    this.inputFormatters,
+    this.enabled = true,
+    this.keyboardAppearance = Brightness.light,
+    this.searchText = 'Search by Country Name',
+    this.countryCodeTextColor,
+    this.dropDownArrowColor,
+    this.autofocus = false,
+    this.textInputAction,
+  });
 
   @override
   _IntlPhoneFieldState createState() => _IntlPhoneFieldState();
@@ -201,9 +204,10 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
         orElse: () => _countryList.first);
 
     validator = widget.autoValidate
-        ? ((value) => value != null && value.length != 10
-            ? 'Invalid Mobile Number'
-            : null)
+        ? ((value) =>
+            value != null && value.length != _selectedCountry["max_length"]
+                ? 'Invalid Mobile Number'
+                : null)
         : widget.validator;
   }
 
@@ -358,18 +362,25 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
                 ),
                 SizedBox(width: 4)
               ],
-              Image.asset(
-                'assets/flags/${_selectedCountry['code']!.toLowerCase()}.png',
-                package: 'intl_phone_field',
-                width: 32,
-              ),
+              if (widget.showFlag)
+                Image.asset(
+                  'assets/flags/${_selectedCountry['code']!.toLowerCase()}.png',
+                  package: 'intl_phone_field',
+                  width: 32,
+                ),
               SizedBox(width: 8),
               FittedBox(
                 child: Text(
                   '+${_selectedCountry['dial_code']}',
-                  style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: widget.countryCodeTextColor),
+                  style: widget.style != null
+                      ? widget.style!.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: widget.countryCodeTextColor,
+                        )
+                      : TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: widget.countryCodeTextColor,
+                        ),
                 ),
               ),
               SizedBox(width: 8),
